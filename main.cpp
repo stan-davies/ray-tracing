@@ -1,4 +1,5 @@
 #include <iostream>
+#include "colour.h"
 
 int main() {
     const int image_width = 256;
@@ -10,15 +11,13 @@ int main() {
         // \r is rollback, which goes back up a line to output, meaning this will all go over each other, also this stuff won't end up in the file
         std::clog << "\rscanlines remaining: " << (image_height - y) << ' ' << std::flush;
         for (int x = 0; x < image_width; ++x) {
-            float r = float(x) / (image_width - 1);
-            float g = float(y) / (image_height - 1);
-            float b = 0.f;
+            colour pixel_colour = colour(
+                float(x) / (image_width - 1),
+                float(y) / (image_height - 1),
+                0
+            );
 
-            int ir = int(255.999f * r);
-            int ig = int(255.999f * g);
-            int ib = int(255.999f * b);
-
-            std::cout << ir << ' ' << ig << ' ' << ib << '\n';
+            write_colour(std::cout, pixel_colour);
         }
     }
 
