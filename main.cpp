@@ -5,8 +5,9 @@
 
 colour ray_colour(const ray& r) {
     vec3 unit_direction = unit(r.direction());
+    // normalised y is such that -1 < y < 1 so we add one and half it to yield a value of a such that 0 < a < 1 which we use for lerping
     float a = 0.5f * (unit_direction.y() + 1.f);
-    // lerp between white and blue
+    // lerp between white and blue, using the precalculated value of a
     return ((1.f - a) * colour(1.f, 1.f, 1.f)) + (a * colour(0.5f, 0.7f, 1.f));
 }
 
