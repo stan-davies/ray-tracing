@@ -5,18 +5,17 @@
 
 float hit_sphere(const point3& centre, float radius, const ray& r) {
     vec3 origin_to_circle = centre - r.origin();
-    // getting the coefficients of a quadratic in terms of 't' (the step along the ray from the camera to the pixel)
-    float a = dot(r.direction(), r.direction());
-    float b = -2.f * dot(r.direction(), origin_to_circle);
-    float c = dot(origin_to_circle, origin_to_circle) - (radius*radius);
-    // then using the discriminant to determine if there is an intersection
-    float discriminant = b*b - 4*a*c;
+    // finding quadratic coefficient and the discriminant of the quadratic formula, but using a simplification that is applicable to our system
+    float a = r.direction().length_squared();
+    float h = dot(r.direction(), origin_to_circle);
+    float c = origin_to_circle.length_squared() - (radius * radius);
+    float discriminant = h * h - a * c;
 
     if (discriminant < 0) {
         return -1.f;
     } else {
         // and if so, determining the value of 't' at which the ray first intersecting the sphere (using the - of the +- to get this)
-        return (-b - std::sqrt(discriminant)) / (2.f * a);
+        return (h - std::sqrt(discriminant)) / a;
     }
 }
 
