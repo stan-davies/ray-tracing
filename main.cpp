@@ -3,22 +3,33 @@
 #include "colour.h"
 #include "ray.h"
 
-bool hit_sphere(const point3& centre, float radius, const ray& r) {
+float hit_sphere(const point3& centre, float radius, const ray& r) {
     vec3 origin_to_circle = centre - r.origin();
+    // getting the coefficients of a quadratic in terms of 't' (the step along the ray from the camera to the pixel)
     float a = dot(r.direction(), r.direction());
     float b = -2.f * dot(r.direction(), origin_to_circle);
     float c = dot(origin_to_circle, origin_to_circle) - (radius*radius);
+    // then using the discriminant to determine if there is an intersection
     float discriminant = b*b - 4*a*c;
-    return (discriminant >= 0);
+
+    if (discriminant < 0) {
+        return -1.f;
+    } else {
+        // and if so, determining the value of 't' at which the ray first intersecting the sphere (using the - of the +- to get this)
+        return (-b - std::sqrt(discriminant)) / (2.f * a);
+    }
 }
 
 colour ray_colour(const ray& r) {
-    // return red if circle, otherwise don't!!
-    // the centre of this circle is x,y centred on screen, and 1 behind the camera, i.e. on the viewport
-    if (hit_sphere(point3(0.f, 0.f, -1.f), 0.5f, r)) {
-        return colour(1.f, 0.f, 0.f);
+    float t = hit_sphere(point3(0.f, 0.f, -1.f), 0.5f, r);
+    if (t > 0.f) {
+        // surface normal at hit point
+        vec3 N = unit(r.at(t) - vec3(0.f, 0.f, -1.f));
+        // mapping -1 < d < 1 (where d indicates a dimension, x, y, or z) to 0 < d < 1 and then setting rgb to this mapped xyz
+        return 0.5f * colour(N.x() + 1, N.y() + 1, N.z() + 1);
     }
 
+    // # background
     vec3 unit_direction = unit(r.direction());
     // normalised y is such that -1 < y < 1 so we add one and half it to yield a value of a such that 0 < a < 1 which we use for lerping
     float a = 0.5f * (unit_direction.y() + 1.f);
