@@ -55,6 +55,7 @@ class float3 {
 
 // just an alias, useful for readability
 using point3 = float3;
+using vec3 = float3;
 
 // inline means that these functions are a part of the above class
 // the reason they are not defined inside of it is because are used 
