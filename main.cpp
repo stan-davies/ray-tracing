@@ -1,31 +1,13 @@
-#include <iostream>
-#include "float3.h"
-#include "colour.h"
-#include "ray.h"
+#include "ray_tracing.h"
 
-float hit_sphere(const point3& centre, float radius, const ray& r) {
-    vec3 origin_to_circle = centre - r.origin();
-    // finding quadratic coefficient and the discriminant of the quadratic formula, but using a simplification that is applicable to our system
-    float a = r.direction().length_squared();
-    float h = dot(r.direction(), origin_to_circle);
-    float c = origin_to_circle.length_squared() - (radius * radius);
-    float discriminant = h * h - a * c;
+#include "hittable.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
-    if (discriminant < 0) {
-        return -1.f;
-    } else {
-        // and if so, determining the value of 't' at which the ray first intersecting the sphere (using the - of the +- to get this)
-        return (h - std::sqrt(discriminant)) / a;
-    }
-}
-
-colour ray_colour(const ray& r) {
-    float t = hit_sphere(point3(0.f, 0.f, -1.f), 0.5f, r);
-    if (t > 0.f) {
-        // surface normal at hit point
-        vec3 N = unit(r.at(t) - vec3(0.f, 0.f, -1.f));
-        // mapping -1 < d < 1 (where d indicates a dimension, x, y, or z) to 0 < d < 1 and then setting rgb to this mapped xyz
-        return 0.5f * colour(N.x() + 1, N.y() + 1, N.z() + 1);
+colour ray_colour(const ray& r, const hittable& world) {
+    hit_record rec;
+    if (world.hit(r, 0, infinity, rec)) {
+        return 0.5 * (rec.normal + colour(1, 1, 1));
     }
 
     // # background
@@ -44,6 +26,11 @@ int main() {
     const int image_width  = 400;
     // we could add some way of ensuring that this is greater than 1, but I haven't done that because it is, i promise
     const int image_height = int(image_width / aspect_ratio);
+
+    // # world
+    hittable_list world;
+    world.add(make_shared<sphere>(point3(0.f, 0.f, -1.f), 0.5f));
+    world.add(make_shared<sphere>(point3(0.f, -100.5f, -1.f), 100.f));
 
     // # camera
     // camera centre is 1 unit from the viewport
@@ -79,7 +66,7 @@ int main() {
 
             ray r(camera_centre, ray_direction);
 
-            colour pixel_colour = ray_colour(r);
+            colour pixel_colour = ray_colour(r, world);
             write_colour(std::cout, pixel_colour);
         }
     }

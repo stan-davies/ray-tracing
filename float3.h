@@ -1,10 +1,6 @@
 #ifndef FLOAT3_H
 #define FLOAT3_H
 
-#include <cmath>
-#include <iostream>
-
-
 // i have used float, i just prefer it
 // if it gets a bit weird and inprecise, convert it to double
 
