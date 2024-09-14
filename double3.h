@@ -47,6 +47,22 @@ class double3 {
         double length_squared() const {
             return (e[0] * e[0]) + (e[1] * e[1]) + (e[2] * e[2]);
         }
+
+        static double3 random() {
+            return double3(
+                random_double(), 
+                random_double(), 
+                random_double()
+            );
+        }
+
+        static double3 random(double min, double max) {
+            return double3(
+                random_double(min, max), 
+                random_double(min, max),
+                random_double(min, max)
+            );
+        }
 };
 
 // just an alias, useful for readability
@@ -118,6 +134,30 @@ inline double3 cross(const double3& u, const double3& v) {
 
 inline double3 unit(const double3& v) {
     return v / v.length();
+}
+
+inline vec3 random_unit() {
+    while (true) {
+        vec3 v = vec3::random(-1.0, 1.0);
+        double len_sq = v.length_squared();
+
+        // eliminate anything outside unit sphere
+        // also eliminate vectors that are very short, as rounding errors would likely lead to a divide by 0 with such vectors
+        if (1e-160 < len_sq && len_sq <= 1) {
+            return v / sqrt(len_sq);
+        }
+    }
+}
+
+// random unit vector that projects outwards from a hemisphere
+inline vec3 random_on_hemisphere(const vec3& normal) {
+    vec3 on_unit_sphere = random_unit();
+
+    if (dot(on_unit_sphere, normal) > 0.0) {
+        return on_unit_sphere;
+    } else {
+        return -on_unit_sphere;
+    }
 }
 
 #endif

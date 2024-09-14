@@ -16,6 +16,7 @@ class camera {
         double  aspect_ratio       = 16.0 / 9.0;   // this is a target, the actual aspect ratio is likely to vary slightly as the image dimensions must be real valued
         int     image_width        = 400;
         int     samples_per_pixel  = 10;           // random samples for each pixel, this is the basic idea of anti-aliasing
+        int     max_bounces        = 10;           // maximum number of ray bounces in scene
 
         void render(const hittable& world) {
             initialise();
@@ -29,7 +30,7 @@ class camera {
                     colour pixel_colour(0.0, 0.0, 0.0);
                     for (int sample = 0; sample < samples_per_pixel; ++sample) {
                         ray r = get_ray(x, y);
-                        pixel_colour += ray_colour(r, world);
+                        pixel_colour += ray_colour(r, max_bounces, world);
                     }
 
                     write_colour(std::cout, pixel_samples_scale * pixel_colour);
@@ -89,11 +90,20 @@ class camera {
             return point3(random_double() - 0.5, random_double() - 0.5, 0);
         }
 
-        colour ray_colour(const ray& r, const hittable& world) const {
+        colour ray_colour(const ray& r, int depth, const hittable& world) const {
+            if (depth <= 0) {
+                return colour(0.0, 0.0, 0.0);
+            }
+
             hit_record rec;
 
-            if (world.hit(r, interval(0, infinity), rec)) {
-                return 0.5 * (rec.normal + colour(1.0, 1.0, 1.0));
+            // don't go from 0 in order to avoid rounding errors where rays are projecting from slightly away from the object surface
+            // fixes shadow acne problem
+            // also actually cuts down on processing time a lot, by stopping rays from pissing about and being silly
+            if (world.hit(r, interval(0.001, infinity), rec)) {
+                vec3 direction = rec.normal + random_unit();
+                // no max recursion safety on this...
+                return 0.5 * ray_colour(ray(rec.p, direction), depth - 1, world);
             }
 
             // # background
