@@ -3,12 +3,19 @@
 
 #include "hittable.h"
 
+// this condition is false as far as the compiler is concerned, but true for vscode
+// this is because the include is more than one file away and so vscode doesn't pick up on it
+// all it does for me is make writing code a bit easier
+#ifndef RAY_TRACING_H
+#include "ray_tracing.h"
+#endif
+
 // note: camera uses right hand coordinates
 class camera {
     public:
-        // this is a target, the actual aspect ratio is likely to vary slightly as the image dimensions must be real valued
-        double aspect_ratio = 16.0 / 9.0;
-        int image_width  = 400;
+        double  aspect_ratio       = 16.0 / 9.0;   // this is a target, the actual aspect ratio is likely to vary slightly as the image dimensions must be real valued
+        int     image_width        = 400;
+        int     samples_per_pixel  = 10;           // random samples for each pixel, this is the basic idea of anti-aliasing
 
         void render(const hittable& world) {
             initialise();
@@ -19,13 +26,13 @@ class camera {
                 // \r is rollback, which goes back up a line to output, meaning this will all go over each other, also this stuff won't end up in the file
                 std::clog << "\rlines remaining: " << (image_height - y) << ' ' << std::flush;
                 for (int x = 0; x < image_width; ++x) {
-                    point3 pixel_centre = pixel00_point + (x * pixel_du) + (y * pixel_dv);
-                    vec3 ray_direction = pixel_centre - camera_centre;
+                    colour pixel_colour(0.0, 0.0, 0.0);
+                    for (int sample = 0; sample < samples_per_pixel; ++sample) {
+                        ray r = get_ray(x, y);
+                        pixel_colour += ray_colour(r, world);
+                    }
 
-                    ray r(camera_centre, ray_direction);
-
-                    colour pixel_colour = ray_colour(r, world);
-                    write_colour(std::cout, pixel_colour);
+                    write_colour(std::cout, pixel_samples_scale * pixel_colour);
                 }
             }
 
@@ -34,15 +41,18 @@ class camera {
 
     private:
         int      image_height;
+        double   pixel_samples_scale;   // colour scale factor for averging sum of pixel samples
         point3   camera_centre;
-        double3  pixel_du;
-        double3  pixel_dv;
-        point3   pixel00_point;
+        double3  pixel_du;              // pixel to pixel vector deltas
+        double3  pixel_dv;              //             "
+        point3   pixel00_point;         // centre of the pixel at (0, 0)
 
 
         void initialise() {
             image_height = int(image_width / aspect_ratio);
             image_height = (image_height < 1) ? 1 : image_height;
+
+            pixel_samples_scale = 1.0 / samples_per_pixel;
 
             camera_centre          = { 0.0, 0.0, 0.0 };
             double focal_length    = 1.0;
@@ -53,14 +63,30 @@ class camera {
             double3 viewport_u = double3(viewport_width, 0, 0);
             double3 viewport_v = double3(0, -viewport_height, 0);
 
-            // pixel to pixel vector deltas
             pixel_du = viewport_u / image_width;
             pixel_dv = viewport_v / image_height;
 
             // upper left pixel location
             const point3 viewport_upper_left = camera_centre - vec3(0, 0, focal_length) - viewport_u/2 - viewport_v/2;
-            // centre of the pixel at (0, 0)
             pixel00_point = viewport_upper_left + 0.5 * (pixel_du + pixel_dv);
+        }
+
+        // constructs a ray from origin to random point around x,y
+        ray get_ray(int x, int y) const {
+
+            vec3    offset       = sample_square();
+            double3 pixel_sample = pixel00_point
+                                 + ((x + offset.x()) * pixel_du)
+                                 + ((y + offset.y()) * pixel_dv);
+            
+            vec3 ray_direction = pixel_sample - camera_centre;
+
+            return ray(camera_centre, ray_direction);
+        }
+
+        // returns vector to random point in the [-0.5,-0.5]-[0.5,0.5] unit square
+        vec3 sample_square() const {
+            return point3(random_double() - 0.5, random_double() - 0.5, 0);
         }
 
         colour ray_colour(const ray& r, const hittable& world) const {
