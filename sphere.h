@@ -2,28 +2,29 @@
 #define SPHERE_H
 
 #include "hittable.h"
+#include "double3.h"
 
 class sphere : public hittable {
     public:
         // fmax enforces r > 0 by returning the greater value of 0 and radius
-        sphere(const point3& centre, float radius) : centre(centre), radius(std::fmax(0, radius)) {}
+        sphere(const point3& centre, double radius) : centre(centre), radius(std::fmax(0, radius)) {}
 
-        bool hit(const ray& r, const float ray_tmin, const float ray_tmax, hit_record& rec) const override {
+        bool hit(const ray& r, const double ray_tmin, const double ray_tmax, hit_record& rec) const override {
             vec3 origin_to_centre = centre - r.origin();
 
-            float a = r.direction().length_squared();
-            float h = dot(r.direction(), origin_to_centre);
-            float c = origin_to_centre.length_squared() - (radius * radius);
+            double a = r.direction().length_squared();
+            double h = dot(r.direction(), origin_to_centre);
+            double c = origin_to_centre.length_squared() - (radius * radius);
 
-            float discriminant = h * h - a * c;
+            double discriminant = h * h - a * c;
 
             if (discriminant < 0) {
                 return false;
             }
 
-            float sqrt_discriminant = std::sqrt(discriminant);
+            double sqrt_discriminant = std::sqrt(discriminant);
 
-            float root = (h - sqrt_discriminant) / a;
+            double root = (h - sqrt_discriminant) / a;
             // prefer first root, if neither is in range then no hit
             if (root <= ray_tmin || ray_tmax <= root) {
                 root = (h + sqrt_discriminant) / a;
@@ -42,7 +43,7 @@ class sphere : public hittable {
 
     private:
         point3 centre;
-        float radius;
+        double radius;
 };
 
 #endif

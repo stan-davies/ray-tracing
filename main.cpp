@@ -3,6 +3,7 @@
 #include "hittable.h"
 #include "hittable_list.h"
 #include "sphere.h"
+#include "interval.h"
 
 colour ray_colour(const ray& r, const hittable& world) {
     hit_record rec;
@@ -13,14 +14,14 @@ colour ray_colour(const ray& r, const hittable& world) {
     // # background
     vec3 unit_direction = unit(r.direction());
     // normalised y is such that -1 < y < 1 so we add one and half it to yield a value of a such that 0 < a < 1 which we use for lerping
-    float a = 0.5f * (unit_direction.y() + 1.f);
+    double a = 0.5 * (unit_direction.y() + 1.0);
     // lerp between white and blue, using the precalculated value of a
-    return ((1.f - a) * colour(1.f, 1.f, 1.f)) + (a * colour(0.5f, 0.7f, 1.f));
+    return ((1.0 - a) * colour(1.0, 1.0, 1.0)) + (a * colour(0.5, 0.7, 1.0));
 }
 
 int main() {
     // this is a target, the actual aspect ratio is likely to vary slightly as the image dimensions must be real valued
-    const float aspect_ratio = 16.f / 9.f;
+    const double aspect_ratio = 16.0 / 9.0;
 
     // # image
     const int image_width  = 400;
@@ -29,20 +30,20 @@ int main() {
 
     // # world
     hittable_list world;
-    world.add(make_shared<sphere>(point3(0.f, 0.f, -1.f), 0.5f));
-    world.add(make_shared<sphere>(point3(0.f, -100.5f, -1.f), 100.f));
+    world.add(make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5));
+    world.add(make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0));
 
     // # camera
     // camera centre is 1 unit from the viewport
-    const float focal_length    = 1.f;
-    const float viewport_height = 2.f;
-    const float viewport_width  = viewport_height * (float(image_width)/image_height);
+    const double focal_length    = 1.0;
+    const double viewport_height = 2.0;
+    const double viewport_width  = viewport_height * (double(image_width) / image_height);
     // we are using right handed coordinates
     const point3 camera_centre  = { 0, 0, 0 };
 
     // vectors across the horizontal and down the vertical viewport edges
-    const float3 viewport_u = float3(viewport_width, 0, 0);
-    const float3 viewport_v = float3(0, -viewport_height, 0);
+    const double3 viewport_u = double3(viewport_width, 0, 0);
+    const double3 viewport_v = double3(0, -viewport_height, 0);
 
     // pixel to pixel vector deltas
     const vec3 pixel_du = viewport_u / image_width;

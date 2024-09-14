@@ -12,15 +12,15 @@ using std::make_shared;
 // if the count hits 0, then the pointer is completely deleted
 using std::shared_ptr;
 
-const float infinity = std::numeric_limits<float>::infinity();
-const float pi = 3.1415927f;
+const double infinity = std::numeric_limits<double>::infinity();
+const double pi = 3.1415926535897932385;
 
-inline float degrees_to_radians(float degrees) {
-    return degrees * pi / 180.f;
+inline double degrees_to_radians(double degrees) {
+    return degrees * pi / 180.0;
 }
 
 #include "colour.h"
 #include "ray.h"
-#include "float3.h"
+#include "double3.h"
 
 #endif
