@@ -141,6 +141,16 @@ inline double3 unit(const double3& v) {
     return v / v.length();
 }
 
+// generate random point inside unit disc
+inline vec3 random_in_unit_disc() {
+    while (true) {
+        vec3 v = vec3(random_double(-1.0, 1.0), random_double(-1.0, 1.0), 0.0);
+        if (v.length_squared() < 1.0) {
+            return v;
+        }
+    }
+}
+
 inline vec3 random_unit() {
     while (true) {
         vec3 v = vec3::random(-1.0, 1.0);

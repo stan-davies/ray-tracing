@@ -14,7 +14,7 @@ int main() {
     std::shared_ptr<lambertian> material_ground = make_shared<lambertian>(colour(0.8, 0.8, 0.0));
     std::shared_ptr<lambertian> material_centre = make_shared<lambertian>(colour(0.1, 0.2, 0.5));
     std::shared_ptr<dielectric> material_left   = make_shared<dielectric>(1.5);
-    std::shared_ptr<dielectric> material_bubble = make_shared<dielectric>(1.00 / 1.50);
+    std::shared_ptr<dielectric> material_bubble = make_shared<dielectric>(1.0 / 1.5);
     std::shared_ptr<metal>      material_right  = make_shared<metal>(colour(0.8, 0.6, 0.2), 1.0);
 
     world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
@@ -29,6 +29,14 @@ int main() {
     cam.image_width        = 400;
     cam.samples_per_pixel  = 100;
     cam.max_bounces        = 50;
+
+    cam.vfov      = 20;
+    cam.lookfrom  = point3(-2.0, 2.0,  1.0);
+    cam.lookat    = point3( 0.0, 0.0, -1.0);
+    cam.vup       = vec3(0.0, 1.0, 0.0);
+
+    cam.defocus_angle  = 0.2;
+    cam.focus_distance = 3.583294573;
 
     // for timing
     std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
