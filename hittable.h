@@ -1,10 +1,14 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
+// solves a circular reference issue, as material gets included way elsewhere so we need this to tell the compiler that it's all going to be alright
+class material;
+
 class hit_record {
     public:
         point3 p;
         vec3 normal;
+        shared_ptr<material> mat;
         double t;
         bool front_face;
 

@@ -2,13 +2,7 @@
 #define CAMERA_H
 
 #include "hittable.h"
-
-// this condition is false as far as the compiler is concerned, but true for vscode
-// this is because the include is more than one file away and so vscode doesn't pick up on it
-// all it does for me is make writing code a bit easier
-#ifndef RAY_TRACING_H
-#include "ray_tracing.h"
-#endif
+#include "material.h"
 
 // note: camera uses right hand coordinates
 class camera {
@@ -101,9 +95,12 @@ class camera {
             // fixes shadow acne problem
             // also actually cuts down on processing time a lot, by stopping rays from pissing about and being silly
             if (world.hit(r, interval(0.001, infinity), rec)) {
-                vec3 direction = rec.normal + random_unit();
-                // no max recursion safety on this...
-                return 0.5 * ray_colour(ray(rec.p, direction), depth - 1, world);
+                ray scattered;
+                colour attenuation;
+                if (rec.mat->scatter(r, rec, attenuation, scattered)) {
+                    return attenuation * ray_colour(scattered, depth - 1, world);
+                }
+                return colour(0.0, 0.0, 0.0);
             }
 
             // # background

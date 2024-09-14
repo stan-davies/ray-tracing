@@ -48,6 +48,11 @@ class double3 {
             return (e[0] * e[0]) + (e[1] * e[1]) + (e[2] * e[2]);
         }
 
+        bool near_zero() const {
+            double small = 1e-8;
+            return (std::fabs(e[0]) < small) && (std::fabs(e[1]) < small) && (std::fabs(e[2]) < small);
+        }
+
         static double3 random() {
             return double3(
                 random_double(), 
@@ -158,6 +163,22 @@ inline vec3 random_on_hemisphere(const vec3& normal) {
     } else {
         return -on_unit_sphere;
     }
+}
+
+// reflects a vector on the normal at a point
+inline vec3 reflect(const vec3& v, const vec3& n) {
+    return v - 2 * dot(v,n) * n;
+}
+
+// it refracts i promise lol
+// uv is the refracted ray
+// n is the normal
+// etai_over_etat is the quotient of the angles between the incoming ray and the normal, and the outgoing (or rather ingoing) ray and the normal
+inline vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat) {
+    double cos_theta = std::fmin(dot(-uv, n), 1.0);
+    vec3 r_out_perpendicular = etai_over_etat * (uv + cos_theta * n);
+    vec3 r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perpendicular.length_squared())) * n;
+    return r_out_perpendicular + r_out_parallel;
 }
 
 #endif
