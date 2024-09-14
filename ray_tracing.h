@@ -20,6 +20,7 @@ inline double degrees_to_radians(double degrees) {
 }
 
 #include "colour.h"
+#include "interval.h"
 #include "ray.h"
 #include "double3.h"
 

@@ -5,7 +5,7 @@ class hit_record {
     public:
         point3 p;
         vec3 normal;
-        float t;
+        double t;
         bool front_face;
 
         // the normal will ALWAYS point out of the hittable, and we record (in 'front_face') which direction it originally came from 
@@ -20,7 +20,7 @@ class hittable {
     public:
         virtual ~hittable() = default;
 
-        virtual bool hit(const ray& r, const float ray_tmin, const float ray_tmax, hit_record& rec) const = 0;
+        virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
 };
 
 #endif

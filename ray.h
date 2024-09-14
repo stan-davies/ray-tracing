@@ -1,7 +1,7 @@
 #ifndef RAY_H
 #define RAY_H
 
-#include "float3.h"
+#include "double3.h"
 
 class ray {
     public:
@@ -13,7 +13,7 @@ class ray {
         const point3& origin() const { return orig; }
         const vec3& direction() const { return dir; }
 
-        point3 at(float t) const {
+        point3 at(double t) const {
             return orig + (t * dir);
         }
 
