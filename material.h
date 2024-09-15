@@ -3,11 +3,6 @@
 
 #include "hittable.h"
 
-// this shouldn't need to be here but vscode SUCKS
-#ifndef RAY_TRACING_H
-#include "ray_tracing.h"
-#endif
-
 class material {
     public: 
         virtual ~material() = default;

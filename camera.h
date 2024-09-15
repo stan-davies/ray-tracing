@@ -7,8 +7,8 @@
 // note: camera uses right hand coordinates
 class camera {
     public:
-        double  aspect_ratio       = 16.0 / 9.0;    // this is a target, the actual aspect ratio is likely to vary slightly as the image dimensions must be real valued
-        int     image_width        = 400;
+        double  aspect_ratio       = 1.0;           // this is a target, the actual aspect ratio is likely to vary slightly as the image dimensions must be real valued
+        int     image_width        = 100;
         int     samples_per_pixel  = 10;            // random samples for each pixel, this is the basic idea of anti-aliasing
         int     max_bounces        = 10;            // maximum number of ray bounces in scene
 
@@ -66,7 +66,7 @@ class camera {
             double theta = degrees_to_radians(vfov);
             double h = std::tan(theta / 2);
             double viewport_height = 2.0 * h * focus_distance;
-            double viewport_width  = viewport_height * (double(image_width) / image_height);
+            double viewport_width = viewport_height * (double(image_width) / image_height);
 
             w = unit(lookfrom - lookat);   // unit vector going directly backwards from camera
             u = unit(cross(vup, w));       // unit vector going directly right from camera
@@ -97,7 +97,7 @@ class camera {
                                  + ((y + offset.y()) * pixel_dv);
             
             point3 ray_origin = (defocus_angle <= 0) ? camera_centre : defocus_disc_sample();
-            vec3 ray_direction = pixel_sample - camera_centre;
+            vec3 ray_direction = pixel_sample - ray_origin;
 
             return ray(ray_origin, ray_direction);
         }
